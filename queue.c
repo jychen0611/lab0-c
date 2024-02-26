@@ -9,12 +9,15 @@
  * following line.
  *   cppcheck-suppress nullPointer
  */
-// test
+
+
 
 /* Create an empty queue */
 struct list_head *q_new()
 {
-    return NULL;
+    struct list_head *h = (struct list_head *) malloc(sizeof(struct list_head));
+    INIT_LIST_HEAD(h);
+    return h;
 }
 
 /* Free all storage used by queue */
