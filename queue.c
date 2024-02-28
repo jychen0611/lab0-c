@@ -156,14 +156,22 @@ bool q_delete_dup(struct list_head *head)
     if (!head || list_empty(head))
         return false;
 
-    struct list_head *cur, *right;
-
-    list_for_each_safe (cur, right, head) {
-        element_t *c = list_entry(cur, element_t, list);
-        element_t *r = list_entry(right, element_t, list);
-        if (strcmp(c->value, r->value) == 0) {
-            list_del(cur);
-            q_release_element(c);
+    struct list_head *l, *r;
+    bool del = false;
+    list_for_each_safe (l, r, head) {
+        element_t *nl = list_entry(l, element_t, list);
+        element_t *nr = list_entry(r, element_t, list);
+        if (l->next != head && strcmp(nl->value, nr->value) == 0) {
+            list_del(l);
+            q_release_element(nl);
+            del = true;
+        } else if (del) {
+            if (strcmp(nl->value, nr->value) == 0)
+                del = true;
+            else
+                del = false;
+            list_del(l);
+            q_release_element(nl);
         }
     }
     // https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/
@@ -175,7 +183,7 @@ void q_swap(struct list_head *head)
 {
     if (!head || list_empty(head))
         return;
-    struct list_head *r, *l;
+    struct list_head *l, *r;
     int counter = 0;
     list_for_each_safe (l, r, head) {
         if (r == head)
@@ -187,8 +195,8 @@ void q_swap(struct list_head *head)
             r->next->prev = l;
             l->prev = r;
             r->next = l;
-            ++counter;
         }
+        ++counter;
     }
     // https://leetcode.com/problems/swap-nodes-in-pairs/
 }
