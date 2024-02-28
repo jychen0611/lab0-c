@@ -17,6 +17,12 @@ it bear
 reverse
 # See how long it is
 size
+# dedup
+dedup
+# swap
+swap
+# reverseK
+reverseK 3
 # Delete queue.  Goes back to a NULL queue.
 free
 # Exit program
