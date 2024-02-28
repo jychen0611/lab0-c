@@ -157,28 +157,33 @@ bool q_delete_dup(struct list_head *head)
         return false;
 
     struct list_head *cur, *right;
-    bool del_flag = false;
+
     list_for_each_safe (cur, right, head) {
         element_t *c = list_entry(cur, element_t, list);
         element_t *r = list_entry(right, element_t, list);
         if (strcmp(c->value, r->value) == 0) {
             list_del(cur);
             q_release_element(c);
-            del_flag = true;
-        } else if (del_flag) {
-            list_del(cur);
-            q_release_element(c);
-            del_flag = false;
         }
     }
     // https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/
-
     return true;
 }
 
 /* Swap every two adjacent nodes */
 void q_swap(struct list_head *head)
 {
+    if (!head || list_empty(head))
+        return;
+    struct list_head *r, *l;
+    list_for_each_safe (l, r, head) {
+        l->next = r->next;
+        r->prev = l->prev;
+        l->prev->next = r;
+        r->next->prev = l;
+        l->prev = r;
+        r->next = l;
+    }
     // https://leetcode.com/problems/swap-nodes-in-pairs/
 }
 
