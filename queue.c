@@ -176,15 +176,19 @@ void q_swap(struct list_head *head)
     if (!head || list_empty(head))
         return;
     struct list_head *r, *l;
+    int counter = 0;
     list_for_each_safe (l, r, head) {
         if (r == head)
             break;
-        l->next = r->next;
-        r->prev = l->prev;
-        l->prev->next = r;
-        r->next->prev = l;
-        l->prev = r;
-        r->next = l;
+        if (counter % 2 == 0) {
+            l->next = r->next;
+            r->prev = l->prev;
+            l->prev->next = r;
+            r->next->prev = l;
+            l->prev = r;
+            r->next = l;
+            ++counter;
+        }
     }
     // https://leetcode.com/problems/swap-nodes-in-pairs/
 }
