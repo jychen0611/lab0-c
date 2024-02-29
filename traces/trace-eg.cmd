@@ -12,7 +12,7 @@ ih bear
 ih gerbil
 # Now at the tail
 it meerkat
-it bear
+it jimmy
 # Reverse it
 reverse
 # See how long it is
