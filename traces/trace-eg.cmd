@@ -25,18 +25,6 @@ swap
 reverseK 3
 # sort
 sort
-#merge
-new
-ih r
-ih c
-ih z
-sort
-merge
-reverse
-rh z
-rh r
-rh r
-rh n
 # Delete queue.  Goes back to a NULL queue.
 free
 # Exit program
