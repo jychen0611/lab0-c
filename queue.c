@@ -220,7 +220,6 @@ void q_reverseK(struct list_head *head, int k)
         return;
     struct list_head *l, *r, *leader;
     struct list_head group;
-    // INIT_LIST_HEAD(&group);
     int counter = k - 1;
     for (l = (head)->next, r = l->next, leader = head; l != (head);
          l = r, r = l->next, --counter) {
@@ -235,8 +234,60 @@ void q_reverseK(struct list_head *head, int k)
     // https://leetcode.com/problems/reverse-nodes-in-k-group/
 }
 
+/* Merge each elements of queue in ascending/descending order */
+void merge(struct list_head *head,
+           struct list_head *left,
+           struct list_head *right,
+           bool descend)
+{
+    while (!list_empty(left) && !list_empty(right)) {
+        element_t *l = list_entry(left->next, element_t, list);
+        element_t *r = list_entry(right->next, element_t, list);
+        if (descend) {
+            if (strcmp(l->value, r->value) > 0) {
+                list_move_tail(left->next, head);
+            } else {
+                list_move_tail(right->next, head);
+            }
+        } else {
+            if (strcmp(l->value, r->value) < 0) {
+                list_move_tail(left->next, head);
+            } else {
+                list_move_tail(right->next, head);
+            }
+        }
+    }
+    if (!list_empty(left))
+        list_splice_tail(left, head);
+    else
+        list_splice_tail(right, head);
+}
+
 /* Sort elements of queue in ascending/descending order */
-void q_sort(struct list_head *head, bool descend) {}
+void q_sort(struct list_head *head, bool descend)
+{
+    if (!head || list_empty(head) || list_is_singular(head))
+        return;
+
+    struct list_head *slow = head->next, *fast = head->next->next;
+    while (fast != head && fast->next != head) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+
+    struct list_head l, r;
+    INIT_LIST_HEAD(&l);
+    INIT_LIST_HEAD(&r);
+
+    list_cut_position(&l, head, slow);
+    list_splice_init(head, &r);
+
+    q_sort(&l, descend);
+    q_sort(&r, descend);
+
+    merge(head, &l, &r, descend);
+}
+
 
 /* Remove every node which has a node with a strictly less value anywhere to
  * the right side of it */
