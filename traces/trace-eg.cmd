@@ -23,6 +23,8 @@ dedup
 swap
 # reverseK
 reverseK 3
+# sort
+sort
 # Delete queue.  Goes back to a NULL queue.
 free
 # Exit program
