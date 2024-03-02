@@ -13,7 +13,7 @@ it zebra 2
 # sort
 sort
 # dedup
-# dedup
+dedup
 free
 
 new
