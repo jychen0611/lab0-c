@@ -2,29 +2,52 @@
 # Use help command to see list of commands and options
 # Initial queue is NULL.
 show
-# Create empty queue
+
+# Test of insert_head, insert_tail, delete duplicate, sort, descend and reverseK
+
 new
-# See how long it is
-size
-# Fill it with some values.  First at the head
-ih dolphin
-ih bear
-ih gerbil
-# Now at the tail
-it meerkat
-it jimmy
-# Reverse it
-reverse
-# See how long it is
-size
-# dedup
-dedup
-# swap
-swap
-# reverseK
-reverseK 3
+ih RAND 4
+it gerbil 3
+it lion 2
+it zebra 2
 # sort
 sort
+# dedup
+# dedup
+free
+
+new
+ih a
+ih b
+ih c
+ih d
+ih a
+ih c
+# descend
+descend
+rh d
+rh c
+rh b
+rh a
+free
+
+new
+ih a 3
+ih b
+ih c
+ih d
+ih e 2
+# reverseK
+reverseK 3
+rh d
+rh e
+rh e
+rh a
+rh b
+rh c
+rh a
+rh a
+
 # Delete queue.  Goes back to a NULL queue.
 free
 # Exit program
