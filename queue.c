@@ -1,8 +1,8 @@
+#include "queue.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "queue.h"
+#include <time.h>
 
 /* Notice: sometimes, Cppcheck would find the potential NULL pointer bugs,
  * but some of them cannot occur. You can suppress them by adding the
@@ -178,8 +178,26 @@ bool q_delete_dup(struct list_head *head)
 /* Swap every two adjacent nodes */
 void q_swap(struct list_head *head)
 {
-    if (!head || list_empty(head))
+    if (!head || list_empty(head) || list_is_singular(head))
         return;
+
+    struct list_head *l = head->next, *r;
+    int len = q_size(head);
+    for (int i = 0; i < len - 1; i += 2) {
+        r = l->next;
+        struct list_head *first = l, *second = r;
+        l = r->next;
+        list_del(first);
+        list_del(second);
+        list_add_tail(second, head);
+        list_add_tail(first, head);
+    }
+    if (len % 2 == 1) {
+        list_del(l);
+        list_add_tail(l, head);
+    }
+    // <approach1>
+    /*
     struct list_head *l, *r;
     for (l = (head)->next; l != (head); l = l->next) {
         r = l->next;
@@ -193,6 +211,8 @@ void q_swap(struct list_head *head)
         l->prev = r;
         r->next = l;
     }
+    */
+
     // https://leetcode.com/problems/swap-nodes-in-pairs/
 }
 
