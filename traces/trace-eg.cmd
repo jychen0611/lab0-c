@@ -6,12 +6,19 @@ show
 # Test of insert_head, insert_tail, delete duplicate, sort, descend and reverseK
 
 new
-ih RAND 4
-it gerbil 3
-it lion 2
-it zebra 2
+it A
+it B
+it C
+it D
+it E
+it F
+# swap
+swap
 # sort
 sort
+it G
+# swap
+swap
 # dedup
 dedup
 free
