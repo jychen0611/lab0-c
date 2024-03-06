@@ -12,15 +12,9 @@ it C
 it D
 it E
 it F
-# swap
-swap
-# sort
-sort
-it G
-# swap
-swap
-# dedup
-dedup
+# dm
+dm
+
 free
 
 new

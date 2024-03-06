@@ -120,6 +120,8 @@ bool q_delete_mid(struct list_head *head)
 {
     if (head == NULL || list_empty(head))
         return false;
+    // <approach 1>
+    /*
     int counter = q_size(head) / 2;
     struct list_head *tmp = head->next;
     while (counter--) {
@@ -127,23 +129,22 @@ bool q_delete_mid(struct list_head *head)
     }
     list_del(tmp);
     q_release_element(list_entry(tmp, element_t, list));
-    /*
-        struct list_head* fast = head->next;
-        struct list_head* slow = head->next;
-        if(list_is_singular(head)){
-            head = NULL;
-            q_release_element(list_entry(head->next, element_t, list));
-        }
-
-        while (fast != head && fast->next != head) {
-            fast = fast->next->next;
-            slow = slow->next;
-        }
-
-        list_del(slow->next);
-        q_release_element(list_entry(slow->next, element_t, list));
-     */
-
+    */
+    // <approach 2>
+    if (list_is_singular(head)) {
+        struct list_head *del = head->next;
+        list_del(del);
+        q_release_element(list_entry(del, element_t, list));
+    }
+    struct list_head *fast = head->next->next;
+    struct list_head *slow = head->next;
+    while (fast != head && fast->next != head) {
+        fast = fast->next->next;
+        slow = slow->next;
+    }
+    struct list_head *del = slow;
+    list_del(del);
+    q_release_element(list_entry(del, element_t, list));
 
     // https://leetcode.com/problems/delete-the-middle-node-of-a-linked-list/
 
@@ -180,7 +181,7 @@ void q_swap(struct list_head *head)
 {
     if (!head || list_empty(head) || list_is_singular(head))
         return;
-
+    // <approach 2>
     struct list_head *l = head->next, *r;
     int len = q_size(head);
     for (int i = 0; i < len - 1; i += 2) {
