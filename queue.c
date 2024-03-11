@@ -131,11 +131,6 @@ bool q_delete_mid(struct list_head *head)
     q_release_element(list_entry(tmp, element_t, list));
     */
     // <approach 2>
-    if (list_is_singular(head)) {
-        struct list_head *del = head->next;
-        list_del(del);
-        q_release_element(list_entry(del, element_t, list));
-    }
     struct list_head *fast = head->next->next;
     struct list_head *slow = head->next;
     while (fast != head && fast->next != head) {
@@ -158,18 +153,15 @@ bool q_delete_dup(struct list_head *head)
         return false;
 
     struct list_head *l, *r;
-    bool del = false;
+    bool del = false, nowdel = false;
     list_for_each_safe (l, r, head) {
         element_t *nl = list_entry(l, element_t, list);
         element_t *nr = list_entry(r, element_t, list);
-        if (l->next != head && !strcmp(nl->value, nr->value)) {
+        nowdel = r != head && !strcmp(nl->value, nr->value);
+        if (nowdel || del) {
             list_del(l);
             q_release_element(nl);
-            del = true;
-        } else if (del) {
-            list_del(l);
-            q_release_element(nl);
-            del = false;
+            del = nowdel;
         }
     }
     // https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/
@@ -261,24 +253,16 @@ void merge(struct list_head *head,
     while (!list_empty(left) && !list_empty(right)) {
         element_t *l = list_entry(left->next, element_t, list);
         element_t *r = list_entry(right->next, element_t, list);
-        if (descend) {
-            if (strcmp(l->value, r->value) > 0) {
-                list_move_tail(left->next, head);
-            } else {
-                list_move_tail(right->next, head);
-            }
+        if (((descend * 2) - 1) * strcmp(l->value, r->value) > 0) {
+            list_move_tail(left->next, head);
         } else {
-            if (strcmp(l->value, r->value) < 0) {
-                list_move_tail(left->next, head);
-            } else {
-                list_move_tail(right->next, head);
-            }
+            list_move_tail(right->next, head);
         }
     }
-    if (!list_empty(left))
-        list_splice_tail(left, head);
-    else
+    if (list_empty(left))
         list_splice_tail(right, head);
+    else
+        list_splice_tail(left, head);
 }
 
 /* Sort elements of queue in ascending/descending order */
@@ -374,16 +358,11 @@ int q_merge(struct list_head *head, bool descend)
 
     int len = 0;
     queue_contex_t *first_q = list_entry(head->next, queue_contex_t, chain);
-    struct list_head *tmp;
+    struct list_head *tmp, *tmphead = head->next;
 
-    list_for_each (tmp, head) {
-        if (tmp == head->next) {
-            continue;
-        }
-
+    list_for_each (tmp, tmphead) {
+        tmphead = head;
         queue_contex_t *another_q = list_entry(tmp, queue_contex_t, chain);
-        if (list_empty(another_q->q))
-            continue;
         len += another_q->size;
         list_splice_init(another_q->q, first_q->q);
     }
