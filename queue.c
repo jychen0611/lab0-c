@@ -297,28 +297,7 @@ void q_sort(struct list_head *head, bool descend)
  * the right side of it */
 int q_ascend(struct list_head *head)
 {
-    /*if (!head || list_empty(head) || list_is_singular(head))
-        return q_size(head);
-
-    struct list_head *tmp = head->prev;
-    char *curMin = list_entry(tmp, element_t, list)->value;
-    tmp = tmp->prev;
-
-    while (tmp != head) {
-        element_t *na = list_entry(tmp, element_t, list);
-
-        if (strcmp(curMin, na->value) <= 0) {
-            struct list_head *del = tmp;
-            tmp = tmp->prev;
-            list_del(del);
-            q_release_element(na);
-        } else {
-            curMin = na->value;
-            tmp = tmp->prev;
-        }
-    }
     // https://leetcode.com/problems/remove-nodes-from-linked-list/
-    return q_size(head);*/
     q_scend_base(head, "ascend");
 }
 
@@ -326,32 +305,32 @@ int q_ascend(struct list_head *head)
  * the right side of it */
 int q_descend(struct list_head *head)
 {
-    /*if (!head || list_empty(head) || list_is_singular(head))
-        return q_size(head);
-
-    struct list_head *tmp = head->prev;
-    char *curMax = list_entry(tmp, element_t, list)->value;
-    tmp = tmp->prev;
-
-    while (tmp != head) {
-        element_t *t = list_entry(tmp, element_t, list);
-
-        if (strcmp(curMax, t->value) >= 0) {
-            struct list_head *del = tmp;
-            tmp = tmp->prev;
-            list_del(del);
-            q_release_element(t);
-        } else {
-            curMax = t->value;
-            tmp = tmp->prev;
-        }
-    }
-
     // https://leetcode.com/problems/remove-nodes-from-linked-list/
-    return q_size(head);*/
     q_scend_base(head, "descend");
 }
 
+/* Merge another queue with first queue, which is in ascending/descending
+ * order */
+void merge_with_first_q(struct list_head *another_q,
+                        struct list_head *first_q,
+                        bool descend)
+{
+    LIST_HEAD(tmp_head);
+    while (!list_empty(first_q) && !list_empty(another_q)) {
+        element_t *f = list_first_entry(first_q, element_t, list);
+        element_t *a = list_first_entry(another_q, element_t, list);
+        if (((descend * 2) - 1) * strcmp(f->value, a->value) > 0) {
+            list_move_tail(first_q->next, &tmp_head);
+        } else {
+            list_move_tail(another_q->next, &tmp_head);
+        }
+    }
+    if (list_empty(first_q))
+        list_splice_tail_init(another_q, &tmp_head);
+    else
+        list_splice_tail_init(first_q, &tmp_head);
+    list_splice(&tmp_head, first_q);
+}
 
 /* Merge all the queues into one sorted queue, which is in ascending/descending
  * order */
@@ -359,8 +338,10 @@ int q_merge(struct list_head *head, bool descend)
 {
     if (!head || list_empty(head))
         return 0;
-
     int len = 0;
+
+    // approach 1
+    /*
     queue_contex_t *first_q = list_entry(head->next, queue_contex_t, chain);
     struct list_head *tmp, *tmphead = head->next;
 
@@ -371,6 +352,16 @@ int q_merge(struct list_head *head, bool descend)
         list_splice_init(another_q->q, first_q->q);
     }
     q_sort(first_q->q, descend);
-    // https://leetcode.com/problems/merge-k-sorted-lists/
+    */
+    // approach 2
+    queue_contex_t *first_q = list_entry(head->next, queue_contex_t, chain);
+    struct list_head *tmp, *tmphead = head->next;
+    list_for_each (tmp, tmphead) {
+        tmphead = head;
+        queue_contex_t *another_q = list_entry(tmp, queue_contex_t, chain);
+        len += another_q->size;
+        merge_with_first_q(another_q->q, first_q->q, descend);
+    }
     return len;
+    // https://leetcode.com/problems/merge-k-sorted-lists/
 }
