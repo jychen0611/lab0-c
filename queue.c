@@ -153,11 +153,11 @@ bool q_delete_dup(struct list_head *head)
         return false;
 
     struct list_head *l, *r;
-    bool del = false, nowdel = false;
+    bool del = false;
     list_for_each_safe (l, r, head) {
         element_t *nl = list_entry(l, element_t, list);
         element_t *nr = list_entry(r, element_t, list);
-        nowdel = r != head && !strcmp(nl->value, nr->value);
+        bool nowdel = r != head && !strcmp(nl->value, nr->value);
         if (nowdel || del) {
             list_del(l);
             q_release_element(nl);
