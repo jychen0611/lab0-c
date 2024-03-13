@@ -9,8 +9,54 @@
  * following line.
  *   cppcheck-suppress nullPointer
  */
+#define q_insert_base(head, sp, to)                               \
+    if (!head)                                                    \
+        return false;                                             \
+    element_t *tmp = malloc(sizeof(element_t));                   \
+    if (!tmp)                                                     \
+        return false;                                             \
+    tmp->value = (char *) malloc(sizeof(char) * (strlen(s) + 1)); \
+    if (!tmp->value) {                                            \
+        q_release_element(tmp);                                   \
+        return false;                                             \
+    }                                                             \
+    strncpy(tmp->value, s, (strlen(s) + 1));                      \
+    !strcmp(to, "head") ? list_add(&tmp->list, head)              \
+                        : list_add_tail(&tmp->list, head);        \
+    return true;
 
 
+#define q_remove_base(head, sp, bufsize, from)                     \
+    if (!head || list_empty(head))                                 \
+        return NULL;                                               \
+    element_t *tmp = !strcmp(from, "first")                        \
+                         ? list_first_entry(head, element_t, list) \
+                         : list_last_entry(head, element_t, list); \
+    strncpy(sp, tmp->value, bufsize);                              \
+    sp[bufsize - 1] = '\0';                                        \
+    list_del(&tmp->list);                                          \
+    return tmp;
+
+#define q_scend_base(head, dir)                                   \
+    if (!head || list_empty(head) || list_is_singular(head))      \
+        return q_size(head);                                      \
+    struct list_head *tmp = head->prev;                           \
+    char *cur = list_entry(tmp, element_t, list)->value;          \
+    tmp = tmp->prev;                                              \
+    while (tmp != head) {                                         \
+        element_t *t = list_entry(tmp, element_t, list);          \
+        if (strcmp(dir, "ascend") ? strcmp(cur, t->value) >= 0    \
+                                  : strcmp(cur, t->value) <= 0) { \
+            struct list_head *del = tmp;                          \
+            tmp = tmp->prev;                                      \
+            list_del(del);                                        \
+            q_release_element(t);                                 \
+        } else {                                                  \
+            cur = t->value;                                       \
+            tmp = tmp->prev;                                      \
+        }                                                         \
+    }                                                             \
+    return q_size(head);
 
 /* Create an empty queue */
 struct list_head *q_new()
@@ -36,69 +82,25 @@ void q_free(struct list_head *l)
 /* Insert an element at head of queue */
 bool q_insert_head(struct list_head *head, char *s)
 {
-    if (!head)
-        return false;
-    element_t *tmp = malloc(sizeof(element_t));
-    if (!tmp)
-        return false;
-
-    tmp->value = (char *) malloc(sizeof(char) * (strlen(s) + 1));
-    if (!tmp->value) {
-        q_release_element(tmp);
-        return false;
-    }
-
-    strncpy(tmp->value, s, (strlen(s) + 1));
-    list_add(&tmp->list, head);
-    return true;
+    q_insert_base(head, s, "head");
 }
 
 /* Insert an element at tail of queue */
 bool q_insert_tail(struct list_head *head, char *s)
 {
-    if (!head)
-        return false;
-    element_t *tmp = malloc(sizeof(element_t));
-    if (!tmp)
-        return false;
-
-    tmp->value = (char *) malloc(sizeof(char) * (strlen(s) + 1));
-    if (!tmp->value) {
-        q_release_element(tmp);
-        return false;
-    }
-
-    strncpy(tmp->value, s, (strlen(s) + 1));
-    list_add_tail(&tmp->list, head);
-    return true;
+    q_insert_base(head, s, "tail");
 }
 
 /* Remove an element from head of queue */
 element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
 {
-    if (!head || list_empty(head))
-        return NULL;
-    element_t *tmp = list_first_entry(head, element_t, list);
-    if (tmp && sp) {
-        strncpy(sp, tmp->value, bufsize);
-        sp[bufsize - 1] = '\0';
-    }
-    list_del(&tmp->list);
-    return tmp;
+    q_remove_base(head, sp, bufsize, "first");
 }
 
 /* Remove an element from tail of queue */
 element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
 {
-    if (!head || list_empty(head))
-        return NULL;
-    element_t *tmp = list_last_entry(head, element_t, list);
-    if (tmp && sp) {
-        strncpy(sp, tmp->value, bufsize);
-        sp[bufsize - 1] = '\0';
-    }
-    list_del(&tmp->list);
-    return tmp;
+    q_remove_base(head, sp, bufsize, "last");
 }
 
 /* Return number of elements in queue */
@@ -295,7 +297,7 @@ void q_sort(struct list_head *head, bool descend)
  * the right side of it */
 int q_ascend(struct list_head *head)
 {
-    if (!head || list_empty(head) || list_is_singular(head))
+    /*if (!head || list_empty(head) || list_is_singular(head))
         return q_size(head);
 
     struct list_head *tmp = head->prev;
@@ -316,15 +318,16 @@ int q_ascend(struct list_head *head)
         }
     }
     // https://leetcode.com/problems/remove-nodes-from-linked-list/
-    return q_size(head);
+    return q_size(head);*/
+    q_scend_base(head, "ascend");
 }
 
 /* Remove every node which has a node with a strictly greater value anywhere to
  * the right side of it */
 int q_descend(struct list_head *head)
 {
-    if (!head || list_empty(head))
-        return 0;
+    /*if (!head || list_empty(head) || list_is_singular(head))
+        return q_size(head);
 
     struct list_head *tmp = head->prev;
     char *curMax = list_entry(tmp, element_t, list)->value;
@@ -345,7 +348,8 @@ int q_descend(struct list_head *head)
     }
 
     // https://leetcode.com/problems/remove-nodes-from-linked-list/
-    return q_size(head);
+    return q_size(head);*/
+    q_scend_base(head, "descend");
 }
 
 
