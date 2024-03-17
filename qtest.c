@@ -679,6 +679,48 @@ bool do_list_sort(int argc, char *argv[])
     return ok && !error_check();
 }
 
+static bool do_write()
+{
+    struct list_head *head = current->q;
+    if (!head)
+        return false;
+    FILE *fptr;
+    fptr = fopen("data.txt", "w");
+    element_t *entry;
+    list_for_each_entry (entry, head, list) {
+        fprintf(fptr, "%s ", entry->value);
+    }
+    fclose(fptr);
+    return true;
+}
+
+static bool do_read(int argc, char *argv[])
+{
+    if (argc != 2) {
+        report(1, "%s needs 2 arguments", argv[0]);
+        return false;
+    }
+    FILE *fptr;
+    bool res;
+    int num;
+    get_int(argv[1], &num);
+    int unused __attribute__((unused));
+    fptr = fopen("data.txt", "r");
+    char buff[10];
+    for (int i = 0; i < num; i++) {
+        unused = fscanf(fptr, "%s", buff);
+        res = q_insert_tail(current->q, buff);
+        if (!res) {
+            report(1, "%s needs 2 arguments", argv[0]);
+            return res;
+        }
+        current->size++;
+    }
+    fclose(fptr);
+    q_show(0);
+    return true;
+};
+
 static bool do_dm(int argc, char *argv[])
 {
     if (argc != 1) {
@@ -1064,6 +1106,8 @@ static bool do_next(int argc, char *argv[])
 
 static void console_init()
 {
+    ADD_COMMAND(read, "Read data from data.txt", "");
+    ADD_COMMAND(write, "Write the data in the queue to data.txt", "");
     ADD_COMMAND(list_sort, "Sort queue in ascending order by list_sort", "");
     ADD_COMMAND(new, "Create new queue", "");
     ADD_COMMAND(free, "Delete queue", "");
