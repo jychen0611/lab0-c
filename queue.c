@@ -32,8 +32,10 @@
     element_t *tmp = !strcmp(from, "first")                        \
                          ? list_first_entry(head, element_t, list) \
                          : list_last_entry(head, element_t, list); \
-    strncpy(sp, tmp->value, bufsize);                              \
-    sp[bufsize - 1] = '\0';                                        \
+    if (tmp && sp) {                                               \
+        strncpy(sp, tmp->value, bufsize);                          \
+        sp[bufsize - 1] = '\0';                                    \
+    }                                                              \
     list_del(&tmp->list);                                          \
     return tmp;
 
