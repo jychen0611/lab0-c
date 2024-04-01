@@ -696,10 +696,6 @@ static bool do_write()
 
 static bool do_read(int argc, char *argv[])
 {
-    if (argc != 2) {
-        report(1, "%s needs 2 arguments", argv[0]);
-        return false;
-    }
     FILE *fptr;
     bool res;
     int num;
@@ -745,6 +741,57 @@ static bool do_dm(int argc, char *argv[])
         --current->size;
     q_show(3);
     return ok && !error_check();
+}
+
+void q_shuffle(struct list_head *head)
+{
+    srand(time(NULL));
+    if (!head || list_empty(head))
+        return;
+    int len = q_size(head);
+    while (len > 0) {
+        int random = rand() % len;
+        struct list_head *old = head->next, *new = head->next;
+        for (int i = 0; i < random; ++i)
+            old = old->next;
+        for (int i = 0; i < len; ++i)
+            new = new->next;
+        old->prev->next = new;
+        old->next->prev = new;
+        struct list_head *p = new->prev;
+        struct list_head *n = new->next;
+        new->next->prev = new->prev;
+        new->prev->next = new->next;
+        new->next = old->next;
+        new->prev = old->prev;
+        old->next = n;
+        old->prev = p;
+        p->next = old;
+        n->prev = old;
+        --len;
+    }
+}
+static bool do_shuffle(int argc, char *argv[])
+{
+    if (argc != 1) {
+        report(1, "%s takes no arguments", argv[0]);
+        return false;
+    }
+
+    if (!current || !current->q) {
+        report(3, "Warning: Try to access null queue");
+        return false;
+    }
+    error_check();
+    set_noallocate_mode(true);
+    if (exception_setup(true))
+        q_shuffle(current->q);
+    exception_cancel();
+
+    set_noallocate_mode(false);
+
+    q_show(3);
+    return !error_check();
 }
 
 static bool do_swap(int argc, char *argv[])
@@ -1106,6 +1153,8 @@ static bool do_next(int argc, char *argv[])
 
 static void console_init()
 {
+    ADD_COMMAND(shuffle, "Using the Fisher-Yates shuffle algorithm to shuffle",
+                "");
     ADD_COMMAND(read, "Read data from data.txt", "");
     ADD_COMMAND(write, "Write the data in the queue to data.txt", "");
     ADD_COMMAND(list_sort, "Sort queue in ascending order by list_sort", "");
