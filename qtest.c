@@ -146,7 +146,6 @@ static bool do_new(int argc, char *argv[])
     }
 
     bool ok = true;
-
     if (exception_setup(true)) {
         queue_contex_t *qctx = malloc(sizeof(queue_contex_t));
         list_add_tail(&qctx->chain, &chain.head);
@@ -696,6 +695,10 @@ static bool do_write()
 
 static bool do_read(int argc, char *argv[])
 {
+    if (argc != 2) {
+        report(1, "%s needs 2 arguments", argv[0]);
+        return false;
+    }
     FILE *fptr;
     bool res;
     int num;
@@ -745,7 +748,6 @@ static bool do_dm(int argc, char *argv[])
 
 void q_shuffle(struct list_head *head)
 {
-    srand(time(NULL));
     if (!head || list_empty(head))
         return;
     int len = q_size(head);
@@ -754,7 +756,7 @@ void q_shuffle(struct list_head *head)
         struct list_head *old = head->next, *new = head->next;
         for (int i = 0; i < random; ++i)
             old = old->next;
-        for (int i = 0; i < len; ++i)
+        for (int i = 0; i < len + 1; ++i)
             new = new->next;
         old->prev->next = new;
         old->next->prev = new;
@@ -1339,7 +1341,7 @@ int main(int argc, char *argv[])
     char *logfile_name = NULL;
     int level = 4;
     int c;
-
+    srand(time(NULL));
     while ((c = getopt(argc, argv, "hv:f:l:")) != -1) {
         switch (c) {
         case 'h':
