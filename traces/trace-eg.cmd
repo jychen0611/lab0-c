@@ -15,7 +15,5 @@ ih e
 shuffle
 # Delete queue.  Goes back to a NULL queue.
 free
-# ttt
-ttt
 # Exit program
 quit
