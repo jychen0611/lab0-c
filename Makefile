@@ -40,8 +40,10 @@ $(GIT_HOOKS):
 OBJS := qtest.o report.o console.o harness.o queue.o \
         random.o dudect/constant.o dudect/fixture.o dudect/ttest.o \
         shannon_entropy.o \
-        linenoise.o web.o
-
+        linenoise.o web.o \
+		game.o \
+		mcts.o
+		
 deps := $(OBJS:%.o=.%.o.d)
 
 qtest: $(OBJS)
